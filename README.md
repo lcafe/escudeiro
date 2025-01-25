@@ -110,17 +110,7 @@ Por exemplo, se `PROXY_TARGET=http://localhost:3000`, uma requisição para `htt
 - **github.com/joho/godotenv** - Para gerenciamento de variáveis de ambiente.
 
 ## Diagrama de Componentes
-`plantuml`
-`@startuml
-package "Escudeiro" {
-    [Servidor HTTP] --> [Gerenciador de Arquivos Estáticos]
-    [Servidor HTTP] --> [Executor de PHP]
-    [Servidor HTTP] --> [Proxy Reverso]
-    [Servidor HTTP] --> [Gerenciador de Desligamento Gradual]
-    [Gerenciador de Configurações] --> [Servidor HTTP]
-}
-@enduml
-`
+![diagrama_de_componentes](https://github.com/user-attachments/assets/08da08b9-a3c9-4e6d-93ea-8b50b842a2e6)
 
 ### Descrição do Diagrama:
 
