@@ -217,13 +217,22 @@ const htmlTemplate = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Escudeiro</title>
     <style>
-        /* 🎨 Paleta de Cores */
+        /* 🎨 Paleta de Cores (Claro) */
         :root {
-            --bg-color: #f5f5f5; /* Whitesmoke */
-            --text-color: #2c2c2c; /* Cinza quase preto */
-            --accent-color: #42a5f5; /* Azul Go */
-            --hover-bg: #e0e0e0; /* Cinza claro */
-            --border-color: #d1d1d1;
+            --bg-color: #f8f9fa; /* Fundo principal */
+            --container-bg: #fff; /* Fundo do container */
+            --text-color: #000; /* Preto para texto */
+            --border-color: #000; /* Bordas escuras */
+            --hover-bg: #f1f1f1; /* Cinza claro no hover */
+        }
+
+        /* 🌙 Paleta de Cores (Escuro) */
+        .dark-mode {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --border-color: #ffffff;
+            --hover-bg: #2c2c2c;
         }
 
         /* 🌐 Reset & Estrutura */
@@ -231,55 +240,70 @@ const htmlTemplate = `
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {
             background: var(--bg-color);
             color: var(--text-color);
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             height: 100vh;
-            padding: 20px;
+            width: 100vw;
+            padding: 40px;
+            transition: background 0.3s, color 0.3s;
         }
 
         /* 📂 Container Principal */
         .container {
-            width: 90%;
-            max-width: 800px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            background: var(--container-bg);
+            border: 2px solid var(--border-color);
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, border 0.3s;
         }
 
         /* 🏷️ Cabeçalho */
         h2 {
             font-size: 24px;
-            font-weight: 600;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* 🔙 Botão Voltar */
+        .back-link {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--text-color);
             margin-bottom: 15px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
         }
 
         /* 📜 Lista de Arquivos */
         ul {
             list-style: none;
             padding: 0;
+            margin: 0;
+            width: 100%;
         }
 
         li {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+            transition: background 0.3s ease;
         }
 
-        li:last-child {
-            border-bottom: none;
+        li:hover {
+            background: var(--hover-bg);
         }
 
         /* 🔗 Links */
@@ -287,46 +311,53 @@ const htmlTemplate = `
             text-decoration: none;
             color: var(--text-color);
             font-size: 18px;
-            font-weight: 500;
-            transition: color 0.3s ease;
             display: flex;
             align-items: center;
+            width: 100%;
         }
 
-        a:hover {
-            color: var(--accent-color);
-        }
-
-        /* 📂 Ícones */
+        /* 📂 Ícones SVG */
         .icon {
+            width: 24px;
+            height: 24px;
             margin-right: 10px;
-            font-size: 18px;
         }
 
-        /* 🔙 Botão Voltar */
-        .back-link {
-            display: inline-block;
-            margin-bottom: 15px;
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: opacity 0.3s ease;
+        /* 🌙 Botão de Troca de Tema */
+        .theme-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            padding: 5px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s, color 0.3s;
         }
 
-        .back-link:hover {
-            opacity: 0.7;
+        .theme-toggle:hover {
+            background: var(--text-color);
+            color: var(--container-bg);
         }
-
     </style>
 </head>
 <body>
 
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
+
     <div class="container">
-        <h2>Navegando em: {{.CurrentPath}}</h2>
+        <h2>Escudeiro</h2>
 
         {{if .CurrentPath}}
-            <a href="../" class="back-link">⬅ Voltar</a>
+            <a href="../" class="back-link">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Diretório:
+            </a>
         {{end}}
 
         <ul>
@@ -334,11 +365,19 @@ const htmlTemplate = `
             <li>
                 {{if isDir .}}
                     <a href="{{.}}/">
-                        <span class="icon">📁</span> {{.}}
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"></path>
+                            <path d="M3 6l3-3h6l3 3"></path>
+                        </svg>
+                        {{.}}
                     </a>
                 {{else}}
                     <a href="/files/{{$.CurrentPath}}{{.}}" target="_blank">
-                        <span class="icon">📄</span> {{.}}
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
+                            <path d="M14 2v6h6"></path>
+                        </svg>
+                        {{.}}
                     </a>
                 {{end}}
             </li>
@@ -346,6 +385,31 @@ const htmlTemplate = `
         </ul>
     </div>
 
+    <script>
+        // Carregar o tema salvo no localStorage
+        document.addEventListener("DOMContentLoaded", function() {
+            if (localStorage.getItem("theme") === "dark") {
+                document.body.classList.add("dark-mode");
+                document.querySelector('.theme-toggle').innerText = "☀️ Modo Claro";
+            }
+        });
+
+        // Alternar tema e salvar no localStorage
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            let button = document.querySelector('.theme-toggle');
+
+            if (document.body.classList.contains('dark-mode')) {
+                button.innerText = "☀️ Modo Claro";
+                localStorage.setItem("theme", "dark");
+            } else {
+                button.innerText = "🌙 Modo Escuro";
+                localStorage.setItem("theme", "light");
+            }
+        }
+    </script>
+
 </body>
 </html>
+
 `
