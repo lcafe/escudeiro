@@ -17,13 +17,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var err = godotenv.Load()
+var webRoot = os.Getenv("WEB_ROOT")
+
 func main() {
-	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("❌ Erro ao carregar o arquivo .env:", err)
 	}
 
-	webRoot := os.Getenv("WEB_ROOT")
 	if webRoot == "" {
 		log.Fatal("❌ A variável de ambiente WEB_ROOT não está definida.")
 	}
@@ -111,7 +112,6 @@ func handleProxy(target string) http.HandlerFunc {
 }
 
 func renderDirectory(w http.ResponseWriter, r *http.Request) {
-	webRoot := os.Getenv("WEB_ROOT")
 
 	// Obter caminho correto do diretório
 	relativePath := strings.TrimPrefix(r.URL.Path, "/")
@@ -142,56 +142,125 @@ func renderDirectory(w http.ResponseWriter, r *http.Request) {
 	log.Println("📤 Diretório renderizado com sucesso.")
 }
 
+// serveFile - Função para servir arquivos PHP ou estáticos
 func serveFile(w http.ResponseWriter, r *http.Request) {
-	webRoot := os.Getenv("WEB_ROOT")
-
+	// Acessar o diretório correto
 	filePath := filepath.Join(webRoot, strings.TrimPrefix(r.URL.Path, "/files/"))
 
 	log.Printf("📥 Tentando servir arquivo: %s", filePath)
 
+	// Verificar se o arquivo existe
 	info, err := os.Stat(filePath)
-	if err != nil {
-		log.Printf("❌ Arquivo ou diretório não encontrado: %s", filePath)
+	if err != nil || info.IsDir() {
+		log.Printf("❌ Arquivo não encontrado: %s", filePath)
 		http.NotFound(w, r)
 		return
 	}
 
-	if info.IsDir() {
-		indexPath := filepath.Join(filePath, "index.html")
-		if _, err := os.Stat(indexPath); err == nil {
-			log.Printf("📄 Servindo index.html automaticamente: %s", indexPath)
-			http.ServeFile(w, r, indexPath)
-			return
-		} else if _, err := os.Stat(filepath.Join(filePath, "index.php")); err == nil {
-			log.Printf("📄 Servindo index.php automaticamente: %s", indexPath)
-			executePHP(w, filepath.Join(filePath, "index.php"))
-			return
+	// Se for um arquivo PHP, inicialize o servidor PHP, se necessário
+	if filepath.Ext(filePath) == ".php" {
+		// Verificar se o servidor PHP já foi iniciado
+		if phpServerCmd == nil && hasPHPFiles(webRoot) {
+			// Iniciar o servidor PHP
+			phpServerCmd = startPHPServer()
 		}
+		// Executar o arquivo PHP
+		executePHPWithServer(w, filePath)
+		return
 	}
 
-	if filepath.Ext(filePath) == ".php" {
-		executePHP(w, filePath)
-		return
-	} else {
-		log.Printf("📤 Servindo arquivo: %s", filePath)
-		http.ServeFile(w, r, filePath)
-	}
+	// Para arquivos estáticos (HTML, CSS, JS, imagens, etc.), serve diretamente
+	log.Printf("📤 Servindo arquivo estático: %s", filePath)
+	http.ServeFile(w, r, filePath)
 }
 
-func executePHP(w http.ResponseWriter, filePath string) {
-	phpPath := filepath.Join("drivers", "php", "php.exe") // Caminho do PHP
+func executePHPWithServer(w http.ResponseWriter, filePath string) {
+	phpPath := filepath.Join("drivers", "php", "php.exe")
 	log.Printf("⚡ Executando PHP: %s %s", phpPath, filePath)
 
+	// Executar o comando PHP para processar o arquivo
 	cmd := exec.Command(phpPath, filePath)
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
+
 	if err != nil {
+		// Se houver erro ao executar o PHP
 		log.Printf("❌ Erro ao executar PHP: %s", err)
 		http.Error(w, "Erro ao executar PHP: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Definir o tipo de conteúdo como HTML
+	w.Header().Set("Content-Type", "text/html")
+	// Enviar a saída do PHP para o navegador
 	w.Write(output)
 	log.Printf("✅ Execução do PHP concluída: %s", filePath)
+}
+
+// Função para verificar a existência de arquivos PHP no diretório
+func hasPHPFiles(directory string) bool {
+	entries, err := os.ReadDir(directory)
+	if err != nil {
+		log.Printf("❌ Erro ao ler o diretório: %s", err)
+		return false
+	}
+
+	// Verifica se existe algum arquivo PHP no diretório
+	for _, entry := range entries {
+		if !entry.IsDir() && filepath.Ext(entry.Name()) == ".php" {
+			return true
+		}
+	}
+	return false
+}
+
+// Função para iniciar o servidor PHP embutido
+func startPHPServer() *exec.Cmd {
+	phpPath := filepath.Join("drivers", "php", "php.exe")
+	log.Printf("⚡ Iniciando servidor PHP embutido...")
+
+	cmd := exec.Command(phpPath, "-S", "localhost:9000", "-t", webRoot)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Start()
+	if err != nil {
+		log.Printf("❌ Erro ao iniciar servidor PHP: %s", err)
+		return nil
+	}
+	log.Println("✅ Servidor PHP iniciado com sucesso.")
+	return cmd
+}
+
+// Função para finalizar o servidor PHP
+func stopPHPServer(cmd *exec.Cmd) {
+	if cmd != nil {
+		err := cmd.Process.Kill()
+		if err != nil {
+			log.Printf("❌ Erro ao parar servidor PHP: %s", err)
+		} else {
+			log.Println("✅ Servidor PHP finalizado.")
+		}
+	}
+}
+
+var phpServerCmd *exec.Cmd
+
+// Função auxiliar para separar headers e corpo da resposta PHP
+func parseHeaders(output string) (map[string]string, string) {
+	headers := make(map[string]string)
+	parts := strings.SplitN(output, "\r\n\r\n", 2) // Separa os headers do corpo usando "\r\n\r\n"
+
+	if len(parts) > 1 {
+		headerLines := strings.Split(parts[0], "\r\n") // Quebra os headers linha por linha
+		for _, line := range headerLines {
+			if strings.Contains(line, ":") { // Apenas linhas com "Chave: Valor" são headers
+				headerParts := strings.SplitN(line, ": ", 2)
+				headers[headerParts[0]] = headerParts[1]
+			}
+		}
+		return headers, parts[1] // Retorna headers e corpo separados
+	}
+
+	return headers, output // Retorna tudo como corpo se nenhum header for encontrado
 }
 
 func listFiles(directory string) ([]string, error) {
