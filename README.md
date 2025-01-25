@@ -121,10 +121,6 @@ Por exemplo, se `PROXY_TARGET=http://localhost:3000`, uma requisição para `htt
 - Gerenciador de Configurações: Carrega configurações essenciais para o funcionamento do servidor.
 - Gerenciador de Desligamento Gradual: Garante que o servidor finalize corretamente, completando requisições em andamento antes de encerrar.
 
-## Contribuição
-
-Se deseja contribuir com melhorias ou reportar problemas, sinta-se à vontade para abrir um **Pull Request** ou **Issue** no [repositório oficial](https://github.com/seu-usuario/escudeiro).
-
 ## Licença
 
 Este projeto está licenciado sob a [Apache License 2.0](LICENSE).
