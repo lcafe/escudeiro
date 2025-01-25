@@ -18,7 +18,7 @@
 ### 1. Clonando o repositório
 
 ```sh
- git clone https://github.com/seu-usuario/escudeiro.git
+ git clone https://github.com/lcafe/escudeiro.git
  cd escudeiro
 ```
 
