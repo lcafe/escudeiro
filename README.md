@@ -109,6 +109,28 @@ Por exemplo, se `PROXY_TARGET=http://localhost:3000`, uma requisição para `htt
 - **httputil.ReverseProxy** - Para implementação do proxy reverso.
 - **github.com/joho/godotenv** - Para gerenciamento de variáveis de ambiente.
 
+## Diagrama de Componentes
+`plantuml`
+`@startuml
+package "Escudeiro" {
+    [Servidor HTTP] --> [Gerenciador de Arquivos Estáticos]
+    [Servidor HTTP] --> [Executor de PHP]
+    [Servidor HTTP] --> [Proxy Reverso]
+    [Servidor HTTP] --> [Gerenciador de Desligamento Gradual]
+    [Gerenciador de Configurações] --> [Servidor HTTP]
+}
+@enduml
+`
+
+### Descrição do Diagrama:
+
+- Servidor HTTP: Atua como o ponto central que recebe todas as requisições HTTP.
+- Gerenciador de Arquivos Estáticos: Serve arquivos estáticos (como HTML, CSS, JS) a partir do diretório especificado.
+- Executor de PHP: Processa arquivos PHP para gerar respostas dinâmicas.
+- Proxy Reverso: Encaminha determinadas requisições para outro servidor ou serviço, conforme configurado.
+- Gerenciador de Configurações: Carrega configurações essenciais para o funcionamento do servidor.
+- Gerenciador de Desligamento Gradual: Garante que o servidor finalize corretamente, completando requisições em andamento antes de encerrar.
+
 ## Contribuição
 
 Se deseja contribuir com melhorias ou reportar problemas, sinta-se à vontade para abrir um **Pull Request** ou **Issue** no [repositório oficial](https://github.com/seu-usuario/escudeiro).
