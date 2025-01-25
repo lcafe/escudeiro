@@ -1,47 +1,47 @@
-# Instructions to Download and Install PHP
+# Instruções para Baixar e Instalar PHP
 
-Follow these steps to download and install PHP in the specified folder:
+Siga estes passos para baixar e instalar o PHP na pasta especificada:
 
-1. **Download PHP:**
-  - Go to the [official PHP website](https://www.php.net/downloads).
-  - Under the "Downloads" section, click on the link to download the latest version of PHP in `.tar.gz` format.
+1. **Baixar PHP:**
+  - Vá para o [site oficial do PHP](https://www.php.net/downloads).
+  - Na seção "Downloads", clique no link para baixar a versão mais recente do PHP no formato `.tar.gz`.
 
-2. **Extract the TAR.GZ File:**
-  - Once the download is complete, navigate to the downloaded `.tar.gz` file.
-  - Open a terminal and run the following command to extract the file:
+2. **Extrair o Arquivo TAR.GZ:**
+  - Após o download ser concluído, navegue até o arquivo `.tar.gz` baixado.
+  - Abra um terminal e execute o seguinte comando para extrair o arquivo:
     ```sh
     tar -xvzf php-*.tar.gz -C escudeiro/drivers/
     ```
 
-3. **Configure PHP:**
-  - Navigate to the extracted PHP folder.
-  - Rename the `php.ini-development` file to `php.ini`:
+3. **Configurar PHP:**
+  - Navegue até a pasta extraída do PHP.
+  - Renomeie o arquivo `php.ini-development` para `php.ini`:
     ```sh
     mv php.ini-development php.ini
     ```
-  - Open the `php.ini` file in a text editor:
+  - Abra o arquivo `php.ini` em um editor de texto:
     ```sh
     nano php.ini
     ```
-  - Make any necessary configuration changes (e.g., enabling extensions).
+  - Faça as alterações de configuração necessárias (por exemplo, habilitando extensões).
 
-4. **Add PHP to System Path:**
-  - Open a terminal and edit the `.bashrc` or `.bash_profile` file:
+4. **Adicionar PHP ao Caminho do Sistema:**
+  - Abra um terminal e edite o arquivo `.bashrc` ou `.bash_profile`:
     ```sh
     nano ~/.bashrc
     ```
-  - Add the following line to include the PHP folder in your PATH:
+  - Adicione a seguinte linha para incluir a pasta do PHP no seu PATH:
     ```sh
     export PATH=$PATH:escudeiro/drivers/php
     ```
-  - Save the file and run the following command to apply the changes:
+  - Salve o arquivo e execute o seguinte comando para aplicar as mudanças:
     ```sh
     source ~/.bashrc
     ```
 
-5. **Verify Installation:**
-  - Open a terminal.
-  - Type `php -v` and press Enter.
-  - You should see the PHP version information, indicating that PHP is installed correctly.
+5. **Verificar Instalação:**
+  - Abra um terminal.
+  - Digite `php -v` e pressione Enter.
+  - Você deve ver as informações da versão do PHP, indicando que o PHP está instalado corretamente.
 
-Now PHP is installed and configured in the specified folder, and you can run your PHP programs.
+Agora o PHP está instalado e configurado na pasta especificada, e você pode executar seus programas PHP.
