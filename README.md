@@ -128,9 +128,3 @@ Se deseja contribuir com melhorias ou reportar problemas, sinta-se à vontade pa
 ## Licença
 
 Este projeto está licenciado sob a [Apache License 2.0](LICENSE).
-
----
-
-🚀 **Escudeiro** foi criado como um primeiro projeto para explorar o desenvolvimento web com Go, mantendo um código limpo, eficiente e escalável.
-
-
